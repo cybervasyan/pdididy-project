@@ -75,7 +75,6 @@ func (o *OrderHandler) GetOrderByUuid(ctx context.Context, params orderv1.GetOrd
 
 func (o *OrderHandler) CreateOrder(ctx context.Context, req *orderv1.CreateOrderRequest) (r orderv1.CreateOrderRes, _ error) {
 	o.storage.mu.Lock()
-	defer o.storage.mu.Unlock()
 
 	orderToCreate := orderv1.OrderDto{
 		OrderUUID: uuid.New(),
@@ -85,7 +84,38 @@ func (o *OrderHandler) CreateOrder(ctx context.Context, req *orderv1.CreateOrder
 	}
 
 	o.storage.orders[orderToCreate.OrderUUID] = &orderToCreate
+	order, ok := o.storage.orders[orderToCreate.OrderUUID]
+	if !ok {
+		o.storage.mu.Unlock()
+		return &orderv1.NotFoundError{
+			Code:    404,
+			Message: "Такого элемента нет",
+		}, nil
+	}
 
+	var partsStringUUIDs []string
+
+	for _, part := range order.PartUuids {
+		partsStringUUIDs = append(partsStringUUIDs, part.String())
+	}
+
+	o.storage.mu.Unlock()
+	parts, err := o.inventoryClient.ListParts(ctx, &inventoryv1.ListPartsRequest{Filter: &inventoryv1.PartsFilter{Uuids: partsStringUUIDs}})
+	if err != nil {
+		return &orderv1.InternalServerError{
+			Code:    500,
+			Message: "InventoryService не отвечает",
+		}, nil
+	}
+	o.storage.mu.Lock()
+	var totalPrice float64
+
+	for _, part := range parts.Parts {
+		totalPrice += part.Price
+	}
+
+	order.SetTotalPrice(totalPrice)
+	o.storage.mu.Unlock()
 	return &orderv1.CreateOrderResponse{
 		OrderUUID: orderToCreate.GetOrderUUID(),
 	}, nil
@@ -134,30 +164,6 @@ func (o *OrderHandler) PayOrder(ctx context.Context, req *orderv1.PayOrderReques
 			Message: "Заказ находится в статусе отличном от PENDING",
 		}, nil
 	}
-
-	var partsStringUUIDs []string
-
-	for _, part := range order.PartUuids {
-		partsStringUUIDs = append(partsStringUUIDs, part.String())
-	}
-
-	o.storage.mu.Unlock()
-	grpcCtx, grpcCancel := context.WithTimeout(ctx, 5*time.Second)
-	defer grpcCancel()
-	parts, err := o.inventoryClient.ListParts(grpcCtx, &inventoryv1.ListPartsRequest{Filter: &inventoryv1.PartsFilter{Uuids: partsStringUUIDs}})
-	if err != nil {
-		return &orderv1.InternalServerError{
-			Code:    500,
-			Message: "InventoryService не отвечает",
-		}, nil
-	}
-
-	var totalPrice float64
-
-	for _, part := range parts.Parts {
-		totalPrice += part.Price
-	}
-
 	var paymentMethod paymentv1.PaymentMethod
 
 	switch req.PaymentMethod {
@@ -174,8 +180,8 @@ func (o *OrderHandler) PayOrder(ctx context.Context, req *orderv1.PayOrderReques
 	default:
 		paymentMethod = paymentv1.PaymentMethod_PAYMENT_METHOD_UNSPECIFIED
 	}
-
-	transactionUUID, err := o.paymentClient.PayOrder(grpcCtx, &paymentv1.PayOrderRequest{
+	o.storage.mu.Unlock()
+	transactionUUID, err := o.paymentClient.PayOrder(ctx, &paymentv1.PayOrderRequest{
 		OrderUuid:     params.OrderUUID.String(),
 		UserUuid:      order.UserUUID.String(),
 		PaymentMethod: paymentMethod,
@@ -196,7 +202,6 @@ func (o *OrderHandler) PayOrder(ctx context.Context, req *orderv1.PayOrderReques
 
 	o.storage.mu.Lock()
 	order.SetStatus(orderv1.OrderStatusPAID)
-	order.SetTotalPrice(totalPrice)
 	order.SetPaymentMethod(orderv1.NewOptPaymentMethod(req.PaymentMethod))
 	order.SetTransactionUUID(orderv1.NewOptNilUUID(parsedUUID))
 	o.storage.mu.Unlock()
