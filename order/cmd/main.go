@@ -145,7 +145,6 @@ func (o *OrderHandler) PayOrder(ctx context.Context, req *orderv1.PayOrderReques
 	grpcCtx, grpcCancel := context.WithTimeout(ctx, 5*time.Second)
 	defer grpcCancel()
 	parts, err := o.inventoryClient.ListParts(grpcCtx, &inventoryv1.ListPartsRequest{Filter: &inventoryv1.PartsFilter{Uuids: partsStringUUIDs}})
-
 	if err != nil {
 		return &orderv1.InternalServerError{
 			Code:    500,
@@ -181,7 +180,6 @@ func (o *OrderHandler) PayOrder(ctx context.Context, req *orderv1.PayOrderReques
 		UserUuid:      order.UserUUID.String(),
 		PaymentMethod: paymentMethod,
 	})
-
 	if err != nil {
 		return &orderv1.InternalServerError{
 			Code:    500,
@@ -189,7 +187,6 @@ func (o *OrderHandler) PayOrder(ctx context.Context, req *orderv1.PayOrderReques
 		}, nil
 	}
 	parsedUUID, err := uuid.Parse(transactionUUID.GetTransactionUuid())
-
 	if err != nil {
 		return &orderv1.InternalServerError{
 			Code:    500,
@@ -211,13 +208,11 @@ func (o *OrderHandler) PayOrder(ctx context.Context, req *orderv1.PayOrderReques
 func main() {
 	storage := NewOrderStorage()
 	pay, err := grpc.NewClient(paymentServerAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
-
 	if err != nil {
 		log.Fatalf("Ошибка создания gRPC сервера PaymentService: %v", err)
 	}
 
 	inv, err := grpc.NewClient(inventoryServerAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
-
 	if err != nil {
 		log.Fatalf("Ошибка создания gRPC сервера InventoryService: %v", err)
 	}
