@@ -142,7 +142,7 @@ func (o *OrderHandler) PayOrder(ctx context.Context, req *orderv1.PayOrderReques
 	}
 
 	o.storage.mu.Unlock()
-	grpcCtx, grpcCancel := context.WithTimeout(context.Background(), 5*time.Second)
+	grpcCtx, grpcCancel := context.WithTimeout(ctx, 5*time.Second)
 	defer grpcCancel()
 	parts, err := o.inventoryClient.ListParts(grpcCtx, &inventoryv1.ListPartsRequest{Filter: &inventoryv1.PartsFilter{Uuids: partsStringUUIDs}})
 
@@ -241,7 +241,8 @@ func main() {
 
 	orderServer, err := orderv1.NewServer(orderHandler)
 	if err != nil {
-		log.Fatalf("Ошибка создания сервера OpenAPI: %v", err)
+		log.Printf("Ошибка создания сервера OpenAPI: %v", err)
+		return
 	}
 
 	r := chi.NewRouter()
