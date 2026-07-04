@@ -8,5 +8,5 @@ import (
 )
 
 type Payment interface {
-	PayOrder(ctx context.Context, orderUUID uuid.UUID, userUUID uuid.UUID, paymentMethod model.PaymentMethod) (uuid.UUID, error)
+	PayOrder(ctx context.Context, orderUUID, userUUID uuid.UUID, paymentMethod model.PaymentMethod) (uuid.UUID, error)
 }

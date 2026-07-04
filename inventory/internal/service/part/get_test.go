@@ -1,6 +1,7 @@
 package part
 
 import (
+	"context"
 	"errors"
 	"time"
 
@@ -88,12 +89,14 @@ func (s *ServiceSuite) TestGet() {
 
 	for _, tt := range tests {
 		s.Run(tt.name, func() {
+			ctx := context.Background()
+
 			s.inventoryRepo.EXPECT().
-				Get(s.ctx, tt.reqUUID).
+				Get(ctx, tt.reqUUID).
 				Return(tt.repoPart, tt.repoErr).
 				Once()
 
-			got, err := s.service.GetPart(s.ctx, tt.reqUUID)
+			got, err := s.service.GetPart(ctx, tt.reqUUID)
 
 			if tt.wantErr != nil {
 				require.ErrorIs(s.T(), err, tt.wantErr)

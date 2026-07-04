@@ -9,7 +9,6 @@ import (
 
 func (s *service) ListParts(ctx context.Context, req model.PartsFilter) ([]model.Part, error) {
 	parts, err := s.partRepo.List(ctx, converter.PartsFilterToRepoModel(req))
-
 	if err != nil {
 		return []model.Part{}, err
 	}

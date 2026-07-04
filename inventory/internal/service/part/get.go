@@ -12,7 +12,6 @@ import (
 
 func (s *service) GetPart(ctx context.Context, partUUID uuid.UUID) (model.Part, error) {
 	part, err := s.partRepo.Get(ctx, partUUID)
-
 	if err != nil {
 		if errors.Is(err, repoModel.ErrPartNotFound) {
 			return model.Part{}, model.ErrPartNotFound

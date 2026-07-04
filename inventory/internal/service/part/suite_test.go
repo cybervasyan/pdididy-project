@@ -1,7 +1,6 @@
 package part
 
 import (
-	"context"
 	"testing"
 
 	"github.com/cybervasyan/pdididy-project/inventory/internal/repository/mocks"
@@ -11,16 +10,12 @@ import (
 type ServiceSuite struct {
 	suite.Suite
 
-	ctx context.Context
-
 	inventoryRepo *mocks.MockRepository
 
 	service *service
 }
 
 func (s *ServiceSuite) SetupTest() {
-	s.ctx = context.Background()
-
 	s.inventoryRepo = mocks.NewMockRepository(s.T())
 
 	s.service = NewPartService(

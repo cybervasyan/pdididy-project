@@ -7,7 +7,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func (s *service) PayOrder(_ context.Context, orderUUID uuid.UUID, userUUID uuid.UUID, paymentMethod model.PaymentMethod) (uuid.UUID, error) {
+func (s *service) PayOrder(_ context.Context, orderUUID, userUUID uuid.UUID, paymentMethod model.PaymentMethod) (uuid.UUID, error) {
 	if orderUUID == uuid.Nil {
 		return uuid.Nil, model.ErrOrderUUIDRequired
 	}
