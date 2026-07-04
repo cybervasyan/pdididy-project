@@ -1,11 +1,13 @@
-template: testify
 dir: "{{.InterfaceDir}}/mocks"
 filename: "mock_{{.InterfaceName}}.go"
-pkgname: "mocks"
+outpkg: "mocks"
 structname: "Mock{{.InterfaceName}}"
-formatter: goimports
 
 packages:
   github.com/cybervasyan/pdididy-project/payment/internal/service:
     interfaces:
       Payment:
+
+  github.com/cybervasyan/pdididy-project/inventory/internal/repository:
+    interfaces:
+      Repository:
