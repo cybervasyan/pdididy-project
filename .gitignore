@@ -27,6 +27,7 @@
 
 /bin
 node_modules
+/.cache/
 /shared/api/bundles/
 /coverage/
 
