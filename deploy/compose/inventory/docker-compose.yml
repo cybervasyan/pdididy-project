@@ -1,0 +1,32 @@
+services:
+  mongodb:
+    image: mongo:8
+    container_name: pdididy-mongodb
+    environment:
+      MONGO_INITDB_DATABASE: ${MONGO_DATABASE:-inventory}
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME:-mongo}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-mongo}
+    ports:
+      - "${MONGO_PORT:-27017}:27017"
+    volumes:
+      - inventory-mongodb-data:/data/db
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - mongosh --quiet --username "$${MONGO_INITDB_ROOT_USERNAME}" --password "$${MONGO_INITDB_ROOT_PASSWORD}" --authenticationDatabase admin --eval "db.adminCommand('ping').ok" | grep 1
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    restart: unless-stopped
+    networks:
+      - pdididy-network
+
+networks:
+  pdididy-network:
+    name: pdididy-network
+    external: true
+
+volumes:
+  inventory-mongodb-data:
+    name: pdididy-inventory-mongodb-data

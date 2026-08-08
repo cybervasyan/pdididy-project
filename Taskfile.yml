@@ -323,3 +323,53 @@ tasks:
           if command -v open &> /dev/null; then open $OUTPUT; elif command -v xdg-open &> /dev/null; then xdg-open $OUTPUT; fi
       - platforms: [windows]
         cmd: powershell -NoProfile -NonInteractive -Command "$out = '{{.COVERAGE_DIR}}/coverage.html'; go tool cover -html='{{.COVERAGE_DIR}}/{{.COVERAGE_FILE}}' -o $out; Start-Process $out"
+
+  up-core:
+    desc: "Создаёт общую сеть для контейнеров"
+    cmds:
+      - docker network inspect pdididy-network >/dev/null 2>&1 || docker network create pdididy-network
+
+  down-core:
+    desc: "Останавливает общую инфраструктуру"
+    cmds:
+      - docker network inspect pdididy-network >/dev/null 2>&1 && docker network rm pdididy-network || true
+
+  up-order:
+    desc: "Запускает зависимости OrderService"
+    deps: [up-core]
+    dir: deploy/compose/order
+    cmds:
+      - docker compose up --detach
+
+  down-order:
+    desc: "Останавливает зависимости OrderService"
+    dir: deploy/compose/order
+    cmds:
+      - docker compose down
+
+  up-inventory:
+    desc: "Запускает зависимости InventoryService"
+    deps: [up-core]
+    dir: deploy/compose/inventory
+    cmds:
+      - docker compose up --detach
+
+  down-inventory:
+    desc: "Останавливает зависимости InventoryService"
+    dir: deploy/compose/inventory
+    cmds:
+      - docker compose down
+
+  up-all:
+    desc: "Запускает все контейнеры"
+    cmds:
+      - task: up-core
+      - task: up-inventory
+      - task: up-order
+
+  down-all:
+    desc: "Останавливает все контейнеры"
+    cmds:
+      - task: down-inventory
+      - task: down-order
+      - task: down-core

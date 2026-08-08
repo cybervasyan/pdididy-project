@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"log"
 	"net"
@@ -11,8 +12,11 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/cybervasyan/pdididy-project/order/internal/migrator"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	_ "github.com/jackc/pgx/v5/stdlib"
+	"github.com/joho/godotenv"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
@@ -35,6 +39,41 @@ const (
 )
 
 func main() {
+	err := godotenv.Load(".env")
+	if err != nil {
+		log.Printf("failed to load .env file: %v\n", err)
+		return
+	}
+
+	dsn := os.Getenv("POSTGRES_DSN")
+	db, err := sql.Open("pgx", dsn)
+	if err != nil {
+		log.Printf("failed to open PostgreSQL connection: %v", err)
+		return
+	}
+
+	defer func() {
+		if closeErr := db.Close(); closeErr != nil {
+			log.Printf("failed to close PostgreSQL connection: %v", closeErr)
+		}
+	}()
+
+	pingCtx, pingCancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer pingCancel()
+
+	if err = db.PingContext(pingCtx); err != nil {
+		log.Printf("failed to connect to PostgreSQL: %v", err)
+		return
+	}
+
+	migrationsDir := os.Getenv("MIGRATIONS_DIR")
+
+	migrationRunner := migrator.NewMigrator(db, migrationsDir)
+	if err = migrationRunner.Up(); err != nil {
+		log.Printf("failed to apply migrations: %v", err)
+		return
+	}
+
 	pay, err := grpc.NewClient(paymentServerAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Printf("Ошибка создания gRPC сервера PaymentService: %v", err)

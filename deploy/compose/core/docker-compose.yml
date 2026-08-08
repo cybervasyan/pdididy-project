@@ -1,0 +1,6 @@
+services: {}
+
+networks:
+  pdididy-network:
+    name: pdididy-network
+    driver: bridge

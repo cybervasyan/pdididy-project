@@ -19,6 +19,7 @@
 
 # env file
 .env
+**/.env
 /.idea
 /.vscode
 /.cursor
@@ -33,3 +34,4 @@ node_modules
 
 AGENTS.md
 .agents
+
