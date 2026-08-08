@@ -4,9 +4,10 @@ import (
 	"context"
 	"testing"
 
-	"github.com/cybervasyan/pdididy-project/payment/internal/model"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
+
+	"github.com/cybervasyan/pdididy-project/payment/internal/model"
 )
 
 func TestPayOrder(t *testing.T) {

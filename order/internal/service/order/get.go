@@ -4,10 +4,11 @@ import (
 	"context"
 	"errors"
 
+	"github.com/google/uuid"
+
 	"github.com/cybervasyan/pdididy-project/order/internal/model"
 	repoConverter "github.com/cybervasyan/pdididy-project/order/internal/repository/converter"
 	repoModel "github.com/cybervasyan/pdididy-project/order/internal/repository/model"
-	"github.com/google/uuid"
 )
 
 func (s *service) GetOrderByUuid(ctx context.Context, orderUUID uuid.UUID) (model.Order, error) {

@@ -4,9 +4,10 @@ import (
 	"context"
 	"errors"
 
+	"github.com/google/uuid"
+
 	model "github.com/cybervasyan/pdididy-project/order/internal/model"
 	repoModel "github.com/cybervasyan/pdididy-project/order/internal/repository/model"
-	"github.com/google/uuid"
 )
 
 func (s *service) CancelOrder(ctx context.Context, orderUUID uuid.UUID) error {

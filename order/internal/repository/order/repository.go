@@ -3,8 +3,9 @@ package order
 import (
 	"sync"
 
-	"github.com/cybervasyan/pdididy-project/order/internal/repository/model"
 	"github.com/google/uuid"
+
+	"github.com/cybervasyan/pdididy-project/order/internal/repository/model"
 )
 
 type repository struct {

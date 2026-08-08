@@ -5,12 +5,13 @@ import (
 	"errors"
 	"log"
 
-	"github.com/cybervasyan/pdididy-project/inventory/internal/converter"
-	"github.com/cybervasyan/pdididy-project/inventory/internal/model"
-	inventoryv1 "github.com/cybervasyan/pdididy-project/shared/pkg/proto/inventory/v1"
 	"github.com/google/uuid"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+
+	"github.com/cybervasyan/pdididy-project/inventory/internal/converter"
+	"github.com/cybervasyan/pdididy-project/inventory/internal/model"
+	inventoryv1 "github.com/cybervasyan/pdididy-project/shared/pkg/proto/inventory/v1"
 )
 
 func (a *api) GetPart(ctx context.Context, req *inventoryv1.GetPartRequest) (*inventoryv1.GetPartResponse, error) {

@@ -3,8 +3,9 @@ package main
 import (
 	"time"
 
-	repoModel "github.com/cybervasyan/pdididy-project/inventory/internal/repository/model"
 	"github.com/google/uuid"
+
+	repoModel "github.com/cybervasyan/pdididy-project/inventory/internal/repository/model"
 )
 
 func seedParts() []repoModel.Part {

@@ -3,8 +3,9 @@ package order
 import (
 	"context"
 
-	"github.com/cybervasyan/pdididy-project/order/internal/repository/model"
 	"github.com/google/uuid"
+
+	"github.com/cybervasyan/pdididy-project/order/internal/repository/model"
 )
 
 func (r *repository) Cancel(_ context.Context, orderUUID uuid.UUID) error {

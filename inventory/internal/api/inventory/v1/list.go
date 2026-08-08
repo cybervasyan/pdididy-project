@@ -4,10 +4,11 @@ import (
 	"context"
 	"log"
 
-	"github.com/cybervasyan/pdididy-project/inventory/internal/converter"
-	inventoryv1 "github.com/cybervasyan/pdididy-project/shared/pkg/proto/inventory/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+
+	"github.com/cybervasyan/pdididy-project/inventory/internal/converter"
+	inventoryv1 "github.com/cybervasyan/pdididy-project/shared/pkg/proto/inventory/v1"
 )
 
 func (a *api) ListParts(ctx context.Context, req *inventoryv1.ListPartsRequest) (*inventoryv1.ListPartsResponse, error) {

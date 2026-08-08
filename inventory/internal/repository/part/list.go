@@ -3,8 +3,9 @@ package part
 import (
 	"context"
 
-	"github.com/cybervasyan/pdididy-project/inventory/internal/repository/model"
 	"github.com/google/uuid"
+
+	"github.com/cybervasyan/pdididy-project/inventory/internal/repository/model"
 )
 
 func (r *repository) List(_ context.Context, req model.PartsFilter) ([]model.Part, error) {

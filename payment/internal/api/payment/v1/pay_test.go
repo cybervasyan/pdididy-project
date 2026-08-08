@@ -4,11 +4,12 @@ import (
 	"context"
 
 	"github.com/brianvoe/gofakeit/v7"
-	"github.com/cybervasyan/pdididy-project/payment/internal/model"
-	paymentv1 "github.com/cybervasyan/pdididy-project/shared/pkg/proto/payment/v1"
 	"github.com/google/uuid"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+
+	"github.com/cybervasyan/pdididy-project/payment/internal/model"
+	paymentv1 "github.com/cybervasyan/pdididy-project/shared/pkg/proto/payment/v1"
 )
 
 func (s *APISuite) TestPaySuccess() {

@@ -4,12 +4,13 @@ import (
 	"context"
 	"errors"
 
+	"github.com/google/uuid"
+
 	grpcConverter "github.com/cybervasyan/pdididy-project/order/internal/client/converter"
 	"github.com/cybervasyan/pdididy-project/order/internal/model"
 	repoConverter "github.com/cybervasyan/pdididy-project/order/internal/repository/converter"
 	repoModel "github.com/cybervasyan/pdididy-project/order/internal/repository/model"
 	paymentv1 "github.com/cybervasyan/pdididy-project/shared/pkg/proto/payment/v1"
-	"github.com/google/uuid"
 )
 
 func (s *service) PayOrder(ctx context.Context, req *model.Order) (model.Order, error) {

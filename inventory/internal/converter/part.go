@@ -3,10 +3,11 @@ package converter
 import (
 	"fmt"
 
-	"github.com/cybervasyan/pdididy-project/inventory/internal/model"
-	inventoryv1 "github.com/cybervasyan/pdididy-project/shared/pkg/proto/inventory/v1"
 	"github.com/google/uuid"
 	"google.golang.org/protobuf/types/known/timestamppb"
+
+	"github.com/cybervasyan/pdididy-project/inventory/internal/model"
+	inventoryv1 "github.com/cybervasyan/pdididy-project/shared/pkg/proto/inventory/v1"
 )
 
 func PartsFilterToModel(f *inventoryv1.PartsFilter) (model.PartsFilter, error) {

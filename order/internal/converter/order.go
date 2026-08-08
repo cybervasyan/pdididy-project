@@ -1,9 +1,10 @@
 package converter
 
 import (
+	"github.com/google/uuid"
+
 	"github.com/cybervasyan/pdididy-project/order/internal/model"
 	orderv1 "github.com/cybervasyan/pdididy-project/shared/pkg/openapi/order/v1"
-	"github.com/google/uuid"
 )
 
 func ModelToOrderDto(order model.Order) *orderv1.OrderDto {

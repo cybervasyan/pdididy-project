@@ -3,8 +3,9 @@ package part
 import (
 	"testing"
 
-	"github.com/cybervasyan/pdididy-project/inventory/internal/repository/mocks"
 	"github.com/stretchr/testify/suite"
+
+	"github.com/cybervasyan/pdididy-project/inventory/internal/repository/mocks"
 )
 
 type ServiceSuite struct {

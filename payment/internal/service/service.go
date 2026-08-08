@@ -3,8 +3,9 @@ package service
 import (
 	"context"
 
-	"github.com/cybervasyan/pdididy-project/payment/internal/model"
 	"github.com/google/uuid"
+
+	"github.com/cybervasyan/pdididy-project/payment/internal/model"
 )
 
 type Payment interface {

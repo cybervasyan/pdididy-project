@@ -8,12 +8,13 @@ import (
 	"os/signal"
 	"syscall"
 
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
+
 	inventoryV1 "github.com/cybervasyan/pdididy-project/inventory/internal/api/inventory/v1"
 	repoPart "github.com/cybervasyan/pdididy-project/inventory/internal/repository/part"
 	servPart "github.com/cybervasyan/pdididy-project/inventory/internal/service/part"
 	inventoryv1 "github.com/cybervasyan/pdididy-project/shared/pkg/proto/inventory/v1"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
 )
 
 func main() {

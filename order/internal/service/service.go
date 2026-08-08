@@ -3,8 +3,9 @@ package service
 import (
 	"context"
 
-	"github.com/cybervasyan/pdididy-project/order/internal/model"
 	"github.com/google/uuid"
+
+	"github.com/cybervasyan/pdididy-project/order/internal/model"
 )
 
 type Order interface {

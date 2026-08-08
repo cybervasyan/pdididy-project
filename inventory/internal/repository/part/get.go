@@ -3,8 +3,9 @@ package part
 import (
 	"context"
 
-	"github.com/cybervasyan/pdididy-project/inventory/internal/repository/model"
 	"github.com/google/uuid"
+
+	"github.com/cybervasyan/pdididy-project/inventory/internal/repository/model"
 )
 
 func (r *repository) Get(_ context.Context, partUUID uuid.UUID) (model.Part, error) {

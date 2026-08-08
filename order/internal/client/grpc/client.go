@@ -3,9 +3,10 @@ package grpc
 import (
 	"context"
 
+	"google.golang.org/grpc"
+
 	inventoryv1 "github.com/cybervasyan/pdididy-project/shared/pkg/proto/inventory/v1"
 	paymentv1 "github.com/cybervasyan/pdididy-project/shared/pkg/proto/payment/v1"
-	"google.golang.org/grpc"
 )
 
 type InventoryClient interface {

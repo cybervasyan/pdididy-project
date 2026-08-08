@@ -3,10 +3,11 @@ package order
 import (
 	"context"
 
+	"github.com/google/uuid"
+
 	"github.com/cybervasyan/pdididy-project/order/internal/model"
 	repoConverter "github.com/cybervasyan/pdididy-project/order/internal/repository/converter"
 	inventoryv1 "github.com/cybervasyan/pdididy-project/shared/pkg/proto/inventory/v1"
-	"github.com/google/uuid"
 )
 
 func (s *service) CreateOrder(ctx context.Context, req *model.Order) (model.Order, error) {

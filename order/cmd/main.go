@@ -11,6 +11,11 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+
 	orderV1 "github.com/cybervasyan/pdididy-project/order/internal/api/order/v1"
 	customMiddleware "github.com/cybervasyan/pdididy-project/order/internal/middleware"
 	repoOrder "github.com/cybervasyan/pdididy-project/order/internal/repository/order"
@@ -18,10 +23,6 @@ import (
 	orderv1 "github.com/cybervasyan/pdididy-project/shared/pkg/openapi/order/v1"
 	inventoryv1 "github.com/cybervasyan/pdididy-project/shared/pkg/proto/inventory/v1"
 	paymentv1 "github.com/cybervasyan/pdididy-project/shared/pkg/proto/payment/v1"
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 )
 
 const (

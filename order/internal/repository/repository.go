@@ -3,8 +3,9 @@ package repository
 import (
 	"context"
 
-	"github.com/cybervasyan/pdididy-project/order/internal/repository/model"
 	"github.com/google/uuid"
+
+	"github.com/cybervasyan/pdididy-project/order/internal/repository/model"
 )
 
 type Repository interface {

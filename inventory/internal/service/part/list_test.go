@@ -5,10 +5,11 @@ import (
 	"errors"
 	"time"
 
-	"github.com/cybervasyan/pdididy-project/inventory/internal/model"
-	repoModel "github.com/cybervasyan/pdididy-project/inventory/internal/repository/model"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
+
+	"github.com/cybervasyan/pdididy-project/inventory/internal/model"
+	repoModel "github.com/cybervasyan/pdididy-project/inventory/internal/repository/model"
 )
 
 func (s *ServiceSuite) TestList() {

@@ -3,8 +3,9 @@ package service
 import (
 	"context"
 
-	"github.com/cybervasyan/pdididy-project/inventory/internal/model"
 	"github.com/google/uuid"
+
+	"github.com/cybervasyan/pdididy-project/inventory/internal/model"
 )
 
 type Part interface {

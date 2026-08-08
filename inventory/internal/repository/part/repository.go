@@ -3,9 +3,10 @@ package part
 import (
 	"sync"
 
+	"github.com/google/uuid"
+
 	def "github.com/cybervasyan/pdididy-project/inventory/internal/repository"
 	"github.com/cybervasyan/pdididy-project/inventory/internal/repository/model"
-	"github.com/google/uuid"
 )
 
 var _ def.Repository = (*repository)(nil)

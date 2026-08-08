@@ -3,8 +3,9 @@ package v1
 import (
 	"testing"
 
-	"github.com/cybervasyan/pdididy-project/payment/internal/service/mocks"
 	"github.com/stretchr/testify/suite"
+
+	"github.com/cybervasyan/pdididy-project/payment/internal/service/mocks"
 )
 
 type APISuite struct {

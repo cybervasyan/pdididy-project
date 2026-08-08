@@ -128,8 +128,13 @@ tasks:
       - platforms: [darwin]
         cmd: |
           if [ ! -f "{{.BUF}}" ]; then
+            case "$(uname -m)" in
+              arm64|aarch64) BUF_ARCH="arm64" ;;
+              x86_64|amd64) BUF_ARCH="x86_64" ;;
+              *) echo "Unsupported macOS architecture: $(uname -m)" >&2; exit 1 ;;
+            esac
             mkdir -p "{{.BIN_DIR}}"
-            curl -sSL "https://github.com/bufbuild/buf/releases/download/v{{.BUF_VERSION}}/buf-Darwin-x86_64" -o "{{.BUF}}"
+            curl -sSL "https://github.com/bufbuild/buf/releases/download/v{{.BUF_VERSION}}/buf-Darwin-${BUF_ARCH}" -o "{{.BUF}}"
             chmod +x "{{.BUF}}"
           fi
       - platforms: [windows]
@@ -144,14 +149,14 @@ tasks:
         vars: { TOOL_PATH: '{{.PROTOC_GEN_GO_GRPC}}', PACKAGE: google.golang.org/grpc/cmd/protoc-gen-go-grpc, VERSION: '{{.PROTOC_GEN_GO_GRPC_VERSION}}' }
 
   proto:gen:
-    deps: [ install-buf, proto:install-plugins, proto:lint ]
+    deps: [ install-buf, 'proto:install-plugins', 'proto:lint' ]
     desc: Генерация Go-кода из .proto
     dir: shared/proto
     cmds:
       - '{{.BUF}} generate'
 
   proto:lint:
-    deps: [ install-buf, proto:install-plugins ]
+    deps: [ install-buf, 'proto:install-plugins' ]
     desc: Проверка .proto-файлов на соответствие стилю
     dir: shared/proto
     cmds:
@@ -168,13 +173,13 @@ tasks:
 
   redocly-cli:order-v1-bundle:
     desc: Собрать OpenAPI order v1 в бандл
-    deps: [ redocly-cli:install ]
+    deps: [ 'redocly-cli:install' ]
     cmds:
       - '{{.REDOCLY}} bundle {{.OPEN_API_ORDER_V1_BASE}} -o {{.OPEN_API_ORDER_V1_BUNDLE}}'
 
   redocly-cli:bundle:
     desc: Собрать все схемы OpenAPI
-    deps: [ redocly-cli:install ]
+    deps: [ 'redocly-cli:install' ]
     cmds:
       - task: redocly-cli:order-v1-bundle
 
@@ -193,7 +198,7 @@ tasks:
 
   ogen:gen:
     desc: "Генерация Go-кода из всех OpenAPI-деклараций с x-ogen"
-    deps: [ ogen:install, yq:install ]
+    deps: [ 'ogen:install', 'yq:install' ]
     cmds:
       - task: redocly-cli:bundle
       - platforms: [linux, darwin]
@@ -239,12 +244,12 @@ tasks:
 
   test-api:
     desc: "Запуск тестов для проверки API микросервисов"
-    deps: [ grpcurl:install ]
+    deps: [ 'grpcurl:install' ]
     cmds:
       - platforms: [windows]
         cmd: powershell -NoProfile -NonInteractive -File scripts/test-api.ps1 -GrpcurlPath "{{.GRPCURL}}"
       - platforms: [linux, darwin]
-        cmd: scripts/test-api.sh "{{.GRPCURL}}"
+        cmd: bash scripts/test-api.sh "{{.GRPCURL}}"
 
   # ─── Mockery ───────────────────────────────────────────────────────────────
   mockery:install:
@@ -255,7 +260,7 @@ tasks:
 
   mockery:gen:
     desc: "Генерирует моки интерфейсов через mockery"
-    deps: [ mockery:install ]
+    deps: [ 'mockery:install' ]
     cmds:
       - platforms: [linux, darwin]
         cmd: '{{.MOCKERY}}'

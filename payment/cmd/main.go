@@ -8,11 +8,12 @@ import (
 	"os/signal"
 	"syscall"
 
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
+
 	paymentV1 "github.com/cybervasyan/pdididy-project/payment/internal/api/payment/v1"
 	servPayment "github.com/cybervasyan/pdididy-project/payment/internal/service/payment"
 	paymentv1 "github.com/cybervasyan/pdididy-project/shared/pkg/proto/payment/v1"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
 )
 
 func main() {

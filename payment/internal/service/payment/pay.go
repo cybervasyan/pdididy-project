@@ -3,8 +3,9 @@ package payment
 import (
 	"context"
 
-	"github.com/cybervasyan/pdididy-project/payment/internal/model"
 	"github.com/google/uuid"
+
+	"github.com/cybervasyan/pdididy-project/payment/internal/model"
 )
 
 func (s *service) PayOrder(_ context.Context, orderUUID, userUUID uuid.UUID, paymentMethod model.PaymentMethod) (uuid.UUID, error) {
