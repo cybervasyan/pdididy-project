@@ -12,7 +12,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/cybervasyan/pdididy-project/order/internal/migrator"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	_ "github.com/jackc/pgx/v5/stdlib"
@@ -22,6 +21,7 @@ import (
 
 	orderV1 "github.com/cybervasyan/pdididy-project/order/internal/api/order/v1"
 	customMiddleware "github.com/cybervasyan/pdididy-project/order/internal/middleware"
+	"github.com/cybervasyan/pdididy-project/order/internal/migrator"
 	repoOrder "github.com/cybervasyan/pdididy-project/order/internal/repository/order"
 	servOrder "github.com/cybervasyan/pdididy-project/order/internal/service/order"
 	orderv1 "github.com/cybervasyan/pdididy-project/shared/pkg/openapi/order/v1"
@@ -101,7 +101,7 @@ func main() {
 	payClient := paymentv1.NewPaymentServiceClient(pay)
 	invClient := inventoryv1.NewInventoryServiceClient(inv)
 
-	repository := repoOrder.NewRepository()
+	repository := repoOrder.NewRepository(db)
 	service := servOrder.NewOrderService(repository, invClient, payClient)
 
 	orderHandler := orderV1.NewAPI(service)

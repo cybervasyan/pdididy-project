@@ -23,7 +23,7 @@ echo "Test 4: CreateOrder"
 ORDER_RESPONSE=$(curl -sf -X POST "http://localhost:8080/api/v1/orders" \
   -H "Content-Type: application/json" \
   -d "{\"user_uuid\":\"$USER_UUID\",\"part_uuids\":[\"$PART_UUID\"]}")
-ORDER_UUID=$(echo "$ORDER_RESPONSE" | grep -o '"uuid":"[^"]*\|"uuid": "[^"]*' | head -1 | cut -d'"' -f4)
+ORDER_UUID=$(echo "$ORDER_RESPONSE" | grep -o '"order_uuid":"[^"]*\|"order_uuid": "[^"]*' | head -1 | cut -d'"' -f4)
 [ -z "$ORDER_UUID" ] && echo "FAIL: no order UUID" && exit 1
 echo "OK: order UUID=$ORDER_UUID"
 
@@ -35,7 +35,7 @@ echo "OK: status=$STATUS"
 echo "Test 6: PayOrder"
 curl -sf -X POST "http://localhost:8080/api/v1/orders/$ORDER_UUID/pay" \
   -H "Content-Type: application/json" \
-  -d '{"payment_method":"PAYMENT_METHOD_CARD"}' > /dev/null
+  -d '{"payment_method":"CARD"}' > /dev/null
 echo "OK: paid"
 
 echo "Test 7: Check PAID"
@@ -47,7 +47,7 @@ echo "Test 8: Create second order"
 ORDER2_RESPONSE=$(curl -sf -X POST "http://localhost:8080/api/v1/orders" \
   -H "Content-Type: application/json" \
   -d "{\"user_uuid\":\"$USER_UUID\",\"part_uuids\":[\"$PART_UUID\"]}")
-ORDER2_UUID=$(echo "$ORDER2_RESPONSE" | grep -o '"uuid":"[^"]*\|"uuid": "[^"]*' | head -1 | cut -d'"' -f4)
+ORDER2_UUID=$(echo "$ORDER2_RESPONSE" | grep -o '"order_uuid":"[^"]*\|"order_uuid": "[^"]*' | head -1 | cut -d'"' -f4)
 [ -z "$ORDER2_UUID" ] && echo "FAIL: no order2 UUID" && exit 1
 echo "OK: order2 UUID=$ORDER2_UUID"
 

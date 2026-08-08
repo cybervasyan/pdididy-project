@@ -1,20 +1,15 @@
 package order
 
 import (
-	"sync"
-
-	"github.com/google/uuid"
-
-	"github.com/cybervasyan/pdididy-project/order/internal/repository/model"
+	"database/sql"
 )
 
 type repository struct {
-	mu     sync.RWMutex
-	orders map[uuid.UUID]*model.Order
+	db *sql.DB
 }
 
-func NewRepository() *repository {
+func NewRepository(db *sql.DB) *repository {
 	return &repository{
-		orders: make(map[uuid.UUID]*model.Order),
+		db: db,
 	}
 }
