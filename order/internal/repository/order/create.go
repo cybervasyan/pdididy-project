@@ -23,7 +23,7 @@ func (r *repository) Create(ctx context.Context, req *model.Order) error {
 		query,
 		req.OrderUUID,
 		req.UserUUID,
-		req.PartUuids,
+		uuidArray(req.PartUuids),
 		req.TotalPrice,
 		req.TransactionUUID,
 		req.PaymentMethod,

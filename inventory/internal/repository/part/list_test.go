@@ -2,11 +2,13 @@ package part
 
 import (
 	"context"
+	"errors"
 	"testing"
-	"time"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
+	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/v2/mongo"
 
 	"github.com/cybervasyan/pdididy-project/inventory/internal/repository/model"
 )
@@ -14,184 +16,74 @@ import (
 func TestList(t *testing.T) {
 	t.Parallel()
 
-	fixedTime := time.Date(2026, 7, 4, 12, 0, 0, 0, time.UTC)
+	partUUID := uuid.MustParse("550e8400-e29b-41d4-a716-446655440001")
+	want := []model.Part{{PartUUID: partUUID, Name: "Fuel Tank", Tags: []string{"fuel"}}}
+	driverErr := errors.New("mongo failure")
 
-	existingParts := []model.Part{
-		{
-			PartUUID:      uuid.MustParse("550e8400-e29b-41d4-a716-446655440001"),
-			Name:          "Plasma Injector",
-			Description:   "High-pressure injector for engine fuel delivery",
-			Price:         129.99,
-			StockQuantity: 12,
-			Category:      model.CategoryEngine,
-			Dimensions:    &model.Dimensions{Length: 32.5, Width: 8.2, Height: 8.2, Weight: 2.4},
-			Manufacturer:  &model.Manufacturer{Name: "Orbital Engines", Country: "Germany", Website: "orbital-engines.example"},
-			Tags:          []string{"engine", "injector", "fuel"},
-			Metadata: map[string]model.Value{
-				"material": {Kind: model.ValueKindString, StringValue: "titanium"},
-				"revision": {Kind: model.ValueKindInt64, Int64Value: 3},
-			},
-			CreatedAt: fixedTime,
-			UpdatedAt: fixedTime,
-		},
-		{
-			PartUUID:      uuid.MustParse("550e8400-e29b-41d4-a716-446655440002"),
-			Name:          "Fuel Pressure Valve",
-			Description:   "Valve for stabilizing fuel line pressure",
-			Price:         45.50,
-			StockQuantity: 34,
-			Category:      model.CategoryFuel,
-			Dimensions:    &model.Dimensions{Length: 12, Width: 4.5, Height: 4.5, Weight: 0.8},
-			Manufacturer:  &model.Manufacturer{Name: "FuelTech Labs", Country: "Japan", Website: "fueltech.example"},
-			Tags:          []string{"fuel", "valve", "pressure"},
-			Metadata: map[string]model.Value{
-				"max_pressure_bar": {Kind: model.ValueKindDouble, DoubleValue: 18.5},
-				"certified":        {Kind: model.ValueKindBool, BoolValue: true},
-			},
-			CreatedAt: fixedTime,
-			UpdatedAt: fixedTime,
-		},
-		{
-			PartUUID:      uuid.MustParse("550e8400-e29b-41d4-a716-446655440003"),
-			Name:          "Reinforced Porthole Glass",
-			Description:   "Impact-resistant glass panel for cabin porthole",
-			Price:         310.75,
-			StockQuantity: 6,
-			Category:      model.CategoryPorthole,
-			Dimensions:    &model.Dimensions{Length: 54, Width: 54, Height: 3.2, Weight: 7.6},
-			Manufacturer:  &model.Manufacturer{Name: "ClearSky Components", Country: "France", Website: "clearsky.example"},
-			Tags:          []string{"porthole", "glass", "cabin"},
-			Metadata: map[string]model.Value{
-				"glass_type": {Kind: model.ValueKindString, StringValue: "laminated"},
-				"layers":     {Kind: model.ValueKindInt64, Int64Value: 4},
-			},
-			CreatedAt: fixedTime,
-			UpdatedAt: fixedTime,
-		},
-		{
-			PartUUID:      uuid.MustParse("550e8400-e29b-41d4-a716-446655440004"),
-			Name:          "Left Wing Stabilizer",
-			Description:   "Stabilizer module for left wing assembly",
-			Price:         780.00,
-			StockQuantity: 3,
-			Category:      model.CategoryWing,
-			Dimensions:    &model.Dimensions{Length: 180, Width: 42, Height: 16, Weight: 24.3},
-			Manufacturer:  &model.Manufacturer{Name: "AeroFrame Works", Country: "USA", Website: "aeroframe.example"},
-			Tags:          []string{"wing", "stabilizer", "aero"},
-			Metadata: map[string]model.Value{
-				"side":                 {Kind: model.ValueKindString, StringValue: "left"},
-				"requires_calibration": {Kind: model.ValueKindBool, BoolValue: true},
-			},
-			CreatedAt: fixedTime,
-			UpdatedAt: fixedTime,
-		},
-		{
-			PartUUID:      uuid.MustParse("550e8400-e29b-41d4-a716-446655440005"),
-			Name:          "Generic Inspection Plug",
-			Description:   "Temporary plug for diagnostics and maintenance",
-			Price:         5.25,
-			StockQuantity: 150,
-			Category:      model.CategoryUnspecified,
-			Dimensions:    &model.Dimensions{Length: 4, Width: 4, Height: 2, Weight: 0.1},
-			Manufacturer:  &model.Manufacturer{Name: "Service Parts Co", Country: "Russia", Website: "service-parts.example"},
-			Tags:          []string{"maintenance", "plug", "inspection"},
-			Metadata: map[string]model.Value{
-				"disposable": {Kind: model.ValueKindBool, BoolValue: true},
-				"batch":      {Kind: model.ValueKindString, StringValue: "A-2026-07"},
-			},
-			CreatedAt: fixedTime,
-			UpdatedAt: fixedTime,
-		},
-	}
+	t.Run("all filters", func(t *testing.T) {
+		t.Parallel()
 
-	tests := []struct {
-		name      string
-		stored    []model.Part
-		req       model.PartsFilter
-		wantParts []model.Part
-		wantErr   error
-	}{
-		{
-			name:      "success",
-			stored:    existingParts,
-			req:       model.PartsFilter{},
-			wantParts: existingParts,
-			wantErr:   nil,
-		},
-		{
-			name:   "filter by uuid",
-			stored: existingParts,
-			req: model.PartsFilter{
-				PartUUIDs: []uuid.UUID{existingParts[0].PartUUID},
-			},
-			wantParts: []model.Part{existingParts[0]},
-			wantErr:   nil,
-		},
-		{
-			name:   "filter by category",
-			stored: existingParts,
-			req: model.PartsFilter{
-				Categories: []model.Category{model.CategoryFuel},
-			},
-			wantParts: []model.Part{existingParts[1]},
-			wantErr:   nil,
-		},
-		{
-			name:   "filter by manufacturer country",
-			stored: existingParts,
-			req: model.PartsFilter{
-				ManufacturerCountries: []string{"Russia"},
-			},
-			wantParts: []model.Part{existingParts[4]},
-			wantErr:   nil,
-		},
-		{
-			name:   "filter by tag",
-			stored: existingParts,
-			req: model.PartsFilter{
-				Tags: []string{"fuel"},
-			},
-			wantParts: []model.Part{existingParts[0], existingParts[1]},
-			wantErr:   nil,
-		},
-		{
-			name:   "filter by several fields",
-			stored: existingParts,
-			req: model.PartsFilter{
-				Categories:            []model.Category{model.CategoryEngine, model.CategoryFuel},
-				ManufacturerCountries: []string{"Japan"},
-				Tags:                  []string{"pressure"},
-			},
-			wantParts: []model.Part{existingParts[1]},
-			wantErr:   nil,
-		},
-		{
-			name:   "empty result",
-			stored: existingParts,
-			req: model.PartsFilter{
-				Names: []string{"Missing Part"},
-			},
-			wantParts: []model.Part{},
-			wantErr:   nil,
-		},
-	}
+		cursor, err := mongo.NewCursorFromDocuments([]any{want[0]}, nil, nil)
+		require.NoError(t, err)
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
+		collection := &collectionMock{findCursor: cursor}
+		repo := NewRepository(collection)
+		filter := model.PartsFilter{
+			PartUUIDs:             []uuid.UUID{partUUID},
+			Names:                 []string{"Fuel Tank"},
+			Categories:            []model.Category{model.CategoryFuel},
+			ManufacturerCountries: []string{"Germany"},
+			Tags:                  []string{"fuel"},
+		}
 
-			repo := NewRepository(tt.stored)
+		got, err := repo.List(context.Background(), filter)
 
-			got, err := repo.List(context.Background(), tt.req)
+		require.NoError(t, err)
+		require.Equal(t, want, got)
+		require.Equal(t, bson.M{
+			"part_uuid":            bson.M{"$in": filter.PartUUIDs},
+			"name":                 bson.M{"$in": filter.Names},
+			"category":             bson.M{"$in": filter.Categories},
+			"manufacturer.country": bson.M{"$in": filter.ManufacturerCountries},
+			"tags":                 bson.M{"$in": filter.Tags},
+		}, collection.filter)
+	})
 
-			if tt.wantErr != nil {
-				require.ErrorIs(t, err, tt.wantErr)
-				require.Empty(t, got)
-				return
-			}
+	t.Run("empty filter", func(t *testing.T) {
+		t.Parallel()
 
-			require.NoError(t, err)
-			require.ElementsMatch(t, tt.wantParts, got)
-		})
-	}
+		cursor, err := mongo.NewCursorFromDocuments(nil, nil, nil)
+		require.NoError(t, err)
+		collection := &collectionMock{findCursor: cursor}
+
+		got, err := NewRepository(collection).List(context.Background(), model.PartsFilter{})
+
+		require.NoError(t, err)
+		require.Empty(t, got)
+		require.Equal(t, bson.M{}, collection.filter)
+	})
+
+	t.Run("find error", func(t *testing.T) {
+		t.Parallel()
+
+		collection := &collectionMock{findErr: driverErr}
+
+		got, err := NewRepository(collection).List(context.Background(), model.PartsFilter{})
+
+		require.ErrorIs(t, err, driverErr)
+		require.Nil(t, got)
+	})
+
+	t.Run("decode error", func(t *testing.T) {
+		t.Parallel()
+
+		cursor, err := mongo.NewCursorFromDocuments([]any{bson.M{"price": "invalid"}}, nil, nil)
+		require.NoError(t, err)
+		collection := &collectionMock{findCursor: cursor}
+
+		got, err := NewRepository(collection).List(context.Background(), model.PartsFilter{})
+
+		require.Error(t, err)
+		require.Nil(t, got)
+	})
 }

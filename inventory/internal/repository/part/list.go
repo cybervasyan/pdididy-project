@@ -11,7 +11,7 @@ import (
 func (r *repository) List(
 	ctx context.Context,
 	req model.PartsFilter,
-) ([]model.Part, error) {
+) (parts []model.Part, err error) {
 	filter := bson.M{}
 
 	if len(req.PartUUIDs) > 0 {
@@ -50,10 +50,13 @@ func (r *repository) List(
 	}
 
 	defer func() {
-		_ = cursor.Close(ctx)
+		closeErr := cursor.Close(ctx)
+		if err == nil {
+			err = closeErr
+		}
 	}()
 
-	parts := make([]model.Part, 0)
+	parts = make([]model.Part, 0)
 
 	if err = cursor.All(ctx, &parts); err != nil {
 		return nil, err
