@@ -1,28 +1,19 @@
 package part
 
 import (
-	"sync"
-
-	"github.com/google/uuid"
+	"go.mongodb.org/mongo-driver/v2/mongo"
 
 	def "github.com/cybervasyan/pdididy-project/inventory/internal/repository"
-	"github.com/cybervasyan/pdididy-project/inventory/internal/repository/model"
 )
 
 var _ def.Repository = (*repository)(nil)
 
 type repository struct {
-	mu    sync.RWMutex
-	parts map[uuid.UUID]model.Part
+	collection *mongo.Collection
 }
 
-func NewRepository(parts []model.Part) *repository {
-	m := make(map[uuid.UUID]model.Part, len(parts))
-	for _, p := range parts {
-		m[p.PartUUID] = p
-	}
-
+func NewRepository(collection *mongo.Collection) *repository {
 	return &repository{
-		parts: m,
+		collection: collection,
 	}
 }

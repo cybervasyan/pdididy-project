@@ -1,13 +1,19 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
+	"github.com/joho/godotenv"
+	"go.mongodb.org/mongo-driver/v2/mongo"
+	"go.mongodb.org/mongo-driver/v2/mongo/options"
+	"go.mongodb.org/mongo-driver/v2/mongo/readpref"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 
@@ -18,6 +24,61 @@ import (
 )
 
 func main() {
+	if err := godotenv.Load(".env"); err != nil {
+		log.Printf("failed to load .env: %v", err)
+		return
+	}
+
+	mongoURI := os.Getenv("MONGO_URI")
+	databaseName := os.Getenv("MONGO_DATABASE")
+	collectionName := os.Getenv("MONGO_COLLECTION")
+
+	mongoClient, err := mongo.Connect(
+		options.Client().ApplyURI(mongoURI),
+	)
+	if err != nil {
+		log.Printf("failed to create MongoDB client: %v", err)
+		return
+	}
+
+	defer func() {
+		disconnectCtx, cancel := context.WithTimeout(
+			context.Background(),
+			5*time.Second,
+		)
+		defer cancel()
+
+		if disconnectErr := mongoClient.Disconnect(disconnectCtx); disconnectErr != nil {
+			log.Printf("failed to disconnect from MongoDB: %v", disconnectErr)
+		}
+	}()
+
+	pingCtx, pingCancel := context.WithTimeout(
+		context.Background(),
+		5*time.Second,
+	)
+	defer pingCancel()
+
+	if err = mongoClient.Ping(pingCtx, readpref.Primary()); err != nil {
+		log.Printf("failed to connect to MongoDB: %v", err)
+		return
+	}
+
+	collection := mongoClient.
+		Database(databaseName).
+		Collection(collectionName)
+
+	seedCtx, seedCancel := context.WithTimeout(
+		context.Background(),
+		10*time.Second,
+	)
+	defer seedCancel()
+
+	if err = seedParts(seedCtx, collection); err != nil {
+		log.Printf("failed to seed MongoDB: %v", err)
+		return
+	}
+
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", 50051))
 	if err != nil {
 		log.Printf("failed to listen: %v\n", err)
@@ -31,7 +92,7 @@ func main() {
 
 	s := grpc.NewServer()
 
-	repository := repoPart.NewRepository(seedParts())
+	repository := repoPart.NewRepository(collection)
 	service := servPart.NewPartService(repository)
 	invAPI := inventoryV1.NewAPI(service)
 

@@ -1,5 +1,5 @@
 -- +goose Up
-CREATE table orders
+CREATE table if not exists orders
 (
     order_uuid       UUID PRIMARY KEY,
     user_uuid        UUID NOT NULL,

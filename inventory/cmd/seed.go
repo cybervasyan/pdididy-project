@@ -1,14 +1,42 @@
 package main
 
 import (
+	"context"
 	"time"
 
 	"github.com/google/uuid"
+	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/v2/mongo"
 
 	repoModel "github.com/cybervasyan/pdididy-project/inventory/internal/repository/model"
 )
 
-func seedParts() []repoModel.Part {
+func seedParts(
+	ctx context.Context,
+	collection *mongo.Collection,
+) error {
+	count, err := collection.CountDocuments(ctx, bson.M{})
+	if err != nil {
+		return err
+	}
+
+	if count > 0 {
+		return nil
+	}
+
+	parts := initialParts()
+	documents := make([]any, 0, len(parts))
+
+	for _, part := range parts {
+		documents = append(documents, part)
+	}
+
+	_, err = collection.InsertMany(ctx, documents)
+
+	return err
+}
+
+func initialParts() []repoModel.Part {
 	now := time.Now()
 
 	return []repoModel.Part{
